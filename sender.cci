@@ -1,0 +1,7 @@
+VERSION:3 SOURCE_TIMESTAMP:4AEF5A0A
+NODE:I LEVEL:0 LINE:3 "C:\Program Files (x86)\cvavr\inc\mega16.h"
+NODE:I LEVEL:0 LINE:4 "C:\Program Files (x86)\cvavr\inc\delay.h"
+NODE:V LEVEL:0 LINE:7 "ch -> R5"
+NODE:V LEVEL:0 LINE:8 "left -> R6,R7"
+NODE:V LEVEL:0 LINE:8 "right -> R8,R9"
+NODE:F LEVEL:0 LINE:9 "main(void)"
