@@ -1,0 +1,92 @@
+
+#include <mega16.h>
+#include <delay.h>
+#include <stdio.h>
+#include <alcd.h>
+
+bit num=1,edge=0;
+int T1,T2,sum , right , left;
+char ch[10];
+// External Interrupt 0 service routine
+interrupt [EXT_INT0] void ext_int0_isr(void)
+{
+    if(num){
+        if(edge){
+            T2=TCNT0;
+            edge=0;
+            num=0;
+            MCUCR=0x03;
+        }
+        else{
+            T1=TCNT0;
+            edge=1;
+            num=0;
+            MCUCR=0x03;
+        }
+    }
+    else{
+        TCNT0=0;
+        MCUCR=0x02;
+        num=1;
+    }
+
+}
+
+
+void main(void)
+{
+// Timer/Counter 0 initialization
+// Clock source: System Clock
+// Clock value: 125.000 kHz
+// Mode: Normal top=0xFF
+// OC0 output: Disconnected
+// Timer Period: 2.048 ms
+TCCR0=(0<<WGM00) | (0<<COM01) | (0<<COM00) | (0<<WGM01) | (0<<CS02) | (1<<CS01) | (0<<CS00);
+TCNT0=0x00;
+OCR0=0x00;
+
+// External Interrupt(s) initialization
+// INT0: On
+// INT0 Mode: Rising Edge
+// INT1: Off
+// INT2: Off
+GICR|=(0<<INT1) | (1<<INT0) | (0<<INT2);
+MCUCR=(0<<ISC11) | (0<<ISC10) | (1<<ISC01) | (0<<ISC00);
+MCUCSR=(0<<ISC2);
+GIFR=(0<<INTF1) | (1<<INTF0) | (0<<INTF2);
+
+// Alphanumeric LCD initialization
+// Connections are specified in the
+// Project|Configure|C Compiler|Libraries|Alphanumeric LCD menu:
+// RS - PORTA Bit 0
+// RD - PORTA Bit 1
+// EN - PORTA Bit 2
+// D4 - PORTA Bit 3
+// D5 - PORTA Bit 4
+// D6 - PORTA Bit 5
+// D7 - PORTA Bit 6
+// Characters/line: 16
+lcd_init(16);
+
+// Global enable interrupts
+#asm("sei")
+
+while (1)
+      {
+
+        left = T1/15-1;
+        right = T2/15-2;
+        sum = (right<<4) + left;
+        sum=(signed)sum;
+       if(sum<0){
+        if(sum==-1){
+          sum=255;
+        }else
+          sum=sum+16;
+         }
+        sum=(unsigned)sum;
+        sprintf(ch,"%d",sum);
+        lcd_clear();
+        lcd_puts(ch);
+      }
+}
